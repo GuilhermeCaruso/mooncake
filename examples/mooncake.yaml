@@ -1,0 +1,4 @@
+path: examples/interfaces
+files:
+  - nested.go
+  - simple.go
