@@ -5,41 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"os"
+
+	"github.com/GuilhermeCaruso/mooncake/generator/models"
+	"github.com/GuilhermeCaruso/mooncake/generator/parser"
 )
 
-type File struct {
-	Path  string   `yaml:"path"`
-	Files []string `yaml:"files"`
-}
-
 func main() {
-	fs := token.NewFileSet()
-	file, _ := parser.ParseFile(fs, "./examples/interfaces/nested.go", nil, 0)
+	p := parser.NewParser()
+	file := p.Parse("./examples/interfaces/nessted.go")
+	fmt.Println(file)
 	// ast.Print(fs, file)
-	parse(file)
+	// parse(file)
 }
 
-type General struct {
-	Imports    []Import
-	Interfaces []Interface
-}
-type Import struct {
-	Path string
-	Name string
-}
-
-func getImport(importSpec []ast.Spec) []Import {
-	mapImport := make([]Import, 0)
+func getImport(importSpec []ast.Spec) []models.Import {
+	mapImport := make([]models.Import, 0)
 	for _, is := range importSpec {
 		spec, ok := is.(*ast.ImportSpec)
 		if !ok {
 			fmt.Printf("invalid spec. err=%s", is)
 			os.Exit(1)
 		}
-		mapImport = append(mapImport, Import{
+		mapImport = append(mapImport, models.Import{
 			Path: spec.Path.Value,
 			Name: spec.Name.String(),
 		})
@@ -47,34 +36,11 @@ func getImport(importSpec []ast.Spec) []Import {
 	return mapImport
 }
 
-type Interface struct {
-	Name       string
-	Generic    []Generic
-	Methods    []Method
-	References []string
-}
-
-type Generic struct {
-	Name string
-	Type string
-}
-
-type Method struct {
-	Name    string
-	Args    []Arg
-	Returns []Arg
-}
-
-type Arg struct {
-	Name string
-	Type string
-}
-
 func getReference(idt *ast.Ident) string {
 	return idt.String()
 }
-func getMethods(methods *ast.FieldList) ([]Method, []string) {
-	methodsToReturn := make([]Method, 0)
+func getMethods(methods *ast.FieldList) ([]models.Method, []string) {
+	methodsToReturn := make([]models.Method, 0)
 	references := make([]string, 0)
 
 	for _, m := range methods.List {
@@ -85,13 +51,13 @@ func getMethods(methods *ast.FieldList) ([]Method, []string) {
 				continue
 			}
 		}
-		method := new(Method)
+		method := new(models.Method)
 		method.Name = m.Names[0].String()
 
 		if field, ok := m.Type.(*ast.FuncType); ok {
 			for idx, p := range field.Params.List {
 				if t, ok := p.Type.(*ast.Ident); ok {
-					method.Args = append(method.Args, Arg{
+					method.Args = append(method.Args, models.Arg{
 						Name: fmt.Sprintf("arg%v", idx),
 						Type: t.String(),
 					})
@@ -99,7 +65,7 @@ func getMethods(methods *ast.FieldList) ([]Method, []string) {
 			}
 			for idx, p := range field.Results.List {
 				if t, ok := p.Type.(*ast.Ident); ok {
-					method.Returns = append(method.Args, Arg{
+					method.Returns = append(method.Args, models.Arg{
 						Name: fmt.Sprintf("result%v", idx),
 						Type: t.String(),
 					})
@@ -112,8 +78,8 @@ func getMethods(methods *ast.FieldList) ([]Method, []string) {
 	return methodsToReturn, references
 }
 
-func getInterface(typeSpec []ast.Spec) []Interface {
-	interfaces := make([]Interface, 0)
+func getInterface(typeSpec []ast.Spec) []models.Implementation {
+	interfaces := make([]models.Implementation, 0)
 
 	for _, ts := range typeSpec {
 
@@ -124,7 +90,7 @@ func getInterface(typeSpec []ast.Spec) []Interface {
 		}
 
 		if iface, ok := typeSpec.Type.(*ast.InterfaceType); ok {
-			ifaceDetails := new(Interface)
+			ifaceDetails := new(models.Implementation)
 			ifaceDetails.Name = typeSpec.Name.String()
 
 			if typeSpec.TypeParams != nil {
@@ -136,7 +102,7 @@ func getInterface(typeSpec []ast.Spec) []Interface {
 							name.WriteString(", ")
 						}
 					}
-					ifaceDetails.Generic = append(ifaceDetails.Generic, Generic{
+					ifaceDetails.Params = append(ifaceDetails.Params, models.Param{
 						Name: name.String(),
 						Type: fmt.Sprintf("%s", tp.Type),
 					})
@@ -156,7 +122,7 @@ func getInterface(typeSpec []ast.Spec) []Interface {
 }
 
 func parse(f *ast.File) {
-	g := new(General)
+	g := new(models.File)
 	for _, dcs := range f.Decls {
 		decl, ok := dcs.(*ast.GenDecl)
 
@@ -169,18 +135,18 @@ func parse(f *ast.File) {
 		case token.IMPORT:
 			g.Imports = append(g.Imports, getImport(decl.Specs)...)
 		case token.TYPE:
-			g.Interfaces = append(g.Interfaces, getInterface(decl.Specs)...)
+			g.Implementations = append(g.Implementations, getInterface(decl.Specs)...)
 		default:
 			fmt.Println("not implemented")
 		}
 
 	}
 
-	for idx, k := range g.Interfaces {
+	for idx, k := range g.Implementations {
 		for _, r := range k.References {
-			for _, ik := range g.Interfaces {
+			for _, ik := range g.Implementations {
 				if r == ik.Name {
-					g.Interfaces[idx].Methods = append(g.Interfaces[idx].Methods, ik.Methods...)
+					g.Implementations[idx].Methods = append(g.Implementations[idx].Methods, ik.Methods...)
 				}
 			}
 		}
