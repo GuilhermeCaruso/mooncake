@@ -23,8 +23,8 @@ type Param struct {
 
 type Method struct {
 	Name    string
-	Args    []Arg
-	Returns []Arg
+	Params  []Arg
+	Results []Arg
 }
 
 type Arg struct {

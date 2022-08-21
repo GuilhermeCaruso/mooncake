@@ -34,4 +34,5 @@ type RootInterface interface {
 type RootInterfaceWithTwo interface {
 	InternalInterface
 	Other
+	Internal(string) string
 }
