@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"context"
 	"time"
 
 	generated_interface "github.com/GuilhermeCaruso/mooncake/examples/generated"
@@ -11,6 +12,7 @@ type Other interface {
 }
 
 type InternalInterface interface {
+	ReturnContext(context.Context) context.Context
 	InternalMethod() (string, generated_interface.NewMockMyNested)
 	NewMethod(string) (string, int, time.Ticker)
 }

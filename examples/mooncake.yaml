@@ -1,4 +1,8 @@
-path: examples/interfaces
-files:
-  - nested.go
-  - simple.go
+mocks:
+  package: mocks
+  path: examples/interfaces
+  files:
+    - nested.go
+    - simple.go
+    - reference.go
+  output: examples/mocks

@@ -8,6 +8,7 @@ import (
 	"go/token"
 	"log"
 
+	"github.com/GuilhermeCaruso/mooncake/generator/builder"
 	"github.com/GuilhermeCaruso/mooncake/generator/models"
 )
 
@@ -27,6 +28,32 @@ func (p *Parser) Parse(fp string) models.File {
 	}
 
 	return p.parse(file)
+}
+
+func (p Parser) PrepareNested(f []builder.BuilderRef) []builder.BuilderRef {
+	files := f
+	mim := make(map[string][]models.Method)
+	for _, f := range files {
+
+		for _, i := range f.File.Implementations {
+			mim[i.Name] = i.Methods
+		}
+	}
+
+	for idxf, f := range files {
+		for idxi, i := range f.File.Implementations {
+			for _, r := range i.References {
+				imp, has := mim[r]
+				if !has {
+					log.Fatalf("Unknown reference: %s", r)
+				}
+				files[idxf].File.Implementations[idxi].Methods = append(
+					files[idxf].File.Implementations[idxi].Methods,
+					imp...)
+			}
+		}
+	}
+	return files
 }
 
 func (p Parser) parse(f *ast.File) models.File {
