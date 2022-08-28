@@ -9,11 +9,7 @@ import (
 func main() {
 	mf := config.NewConfig("./examples/mooncake.yaml")
 	parsedFiles := parseFiles(mf.Files)
-
 	builder.NewBuilder(mf.Package).BuildFiles(parsedFiles)
-
-	// b, _ := json.Marshal(parsedFiles)
-	// fmt.Println(string(b))
 }
 
 func parseFiles(f []config.ConfigFile) []builder.BuilderRef {

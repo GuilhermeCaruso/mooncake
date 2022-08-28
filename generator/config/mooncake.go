@@ -43,6 +43,7 @@ func NewConfig(p string) Config {
 	}
 
 	config := new(Config)
+	config.Package = mf.Mocks.Package
 	config.setFiles(mf.Mocks.Path, mf.Mocks.Output, mf.Mocks.Files)
 	return *config
 }
