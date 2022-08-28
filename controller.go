@@ -2,11 +2,22 @@ package mooncake
 
 import (
 	"fmt"
-	"os"
+	"log"
 	"reflect"
 )
 
+var (
+	ErrInvalidNumberOfReturns = func(key string, expected, got int) error {
+		return fmt.Errorf("invalid number of returns for %s. expected=%v got=%v", key, expected, got)
+	}
+
+	ErrInvalidTypeOfReturn = func(key string, expected, got interface{}) error {
+		return fmt.Errorf("invalid type of return for %s. expected=%v got=%v", key, expected, got)
+	}
+)
+
 type AgentController struct {
+	key           string
 	returnValues  []ReturnDetail
 	lifeTime      MooncakeLifetime
 	lifeTimeCount int
@@ -17,9 +28,9 @@ type ReturnDetail struct {
 	DType reflect.Type
 }
 
-func NewAgentController(imp reflect.Type) AgentController {
+func NewAgentController(key string, imp reflect.Type) AgentController {
 	newAgentController := new(AgentController)
-
+	newAgentController.key = key
 	newAgentController.lifeTime = LT_ONE_CALL
 	newAgentController.lifeTimeCount = 1
 
@@ -34,13 +45,13 @@ func NewAgentController(imp reflect.Type) AgentController {
 
 func (ag *AgentController) SetReturn(args ...interface{}) *AgentController {
 	if len(ag.returnValues) != len(args) {
-		fmt.Println("invalid number of returns")
-		os.Exit(1)
+		log.Fatalln(ErrInvalidNumberOfReturns(ag.key,
+			len(ag.returnValues), len(args)).Error())
 	}
 	for idx, arg := range args {
 		if reflect.TypeOf(arg) != ag.returnValues[idx].DType {
-			fmt.Println("invalid type of return")
-			os.Exit(1)
+			log.Fatalln(ErrInvalidTypeOfReturn(ag.key,
+				ag.returnValues[idx].DType, reflect.TypeOf(arg)).Error())
 		}
 		ag.returnValues[idx].Value = arg
 	}

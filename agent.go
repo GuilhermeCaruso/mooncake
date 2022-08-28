@@ -1,11 +1,16 @@
 package mooncake
 
 import (
-	"errors"
 	"fmt"
-	"os"
+	"log"
 	"reflect"
 	"sync"
+)
+
+var (
+	ErrNoCallsRegistered = func(key string) error {
+		return fmt.Errorf("no calls registered for %s", key)
+	}
 )
 
 type MooncakeAgent struct {
@@ -32,7 +37,7 @@ func (ma *MooncakeAgent) SetCall(key string, typeImpl reflect.Type) *AgentContro
 
 	if v, has := ma.queue[key]; !has {
 		ma.queue[key] = new(AgentController)
-		agentTo = NewAgentController(typeImpl)
+		agentTo = NewAgentController(key, typeImpl)
 	} else {
 		v.lifeTimeCount++
 		v.lifeTime = LT_REPEAT
@@ -53,8 +58,7 @@ func (ma *MooncakeAgent) GetCall(key string) []ReturnDetail {
 		}
 		return valueToReturn
 	} else {
-		fmt.Println(errors.New("No call registered"))
-		os.Exit(1)
+		log.Fatalln(ErrNoCallsRegistered(key).Error())
 	}
 	return []ReturnDetail{}
 }
