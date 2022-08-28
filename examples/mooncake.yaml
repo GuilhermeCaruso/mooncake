@@ -1,6 +1,0 @@
-mocks:
-  package: mocks
-  path: examples/interfaces/
-  files:
-    - example.go
-  output: examples/mocks
