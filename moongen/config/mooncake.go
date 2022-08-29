@@ -1,9 +1,11 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
@@ -24,6 +26,7 @@ type Mock struct {
 type Config struct {
 	Package string
 	Prefix  string
+	Output  string
 	Files   []ConfigFile
 }
 
@@ -33,6 +36,7 @@ type ConfigFile struct {
 }
 
 func NewConfig(p string) Config {
+	dir := filepath.Dir(p)
 	b, err := ioutil.ReadFile(p)
 	if err != nil {
 		log.Fatalf("Something went wrong: %s", err.Error())
@@ -46,12 +50,23 @@ func NewConfig(p string) Config {
 
 	config := new(Config)
 	config.Package = mf.Mocks.Package
+	config.Output = filepath.Join(dir, mf.Mocks.Output)
 	config.Prefix = "generated"
 	if mf.Mocks.Prefix != "" {
 		config.Prefix = mf.Mocks.Prefix
 	}
-	config.setFiles(mf.Mocks.Path, mf.Mocks.Output, mf.Mocks.Files)
+	config.setFiles(filepath.Join(dir, mf.Mocks.Path), filepath.Join(dir, mf.Mocks.Output), mf.Mocks.Files)
 	return *config
+}
+
+func (c *Config) PrepareFolder() {
+	if _, err := os.Stat(c.Output); errors.Is(err, os.ErrNotExist) {
+		if err := os.MkdirAll(c.Output, os.ModePerm); err != nil {
+			log.Fatalf("Fail to create output folder: %s", err.Error())
+
+		}
+
+	}
 }
 
 func (c *Config) setFiles(path string, newPath string, files []string) {

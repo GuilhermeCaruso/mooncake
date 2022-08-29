@@ -42,6 +42,7 @@ func init() {
 
 func main() {
 	mf := config.NewConfig(*file)
+	mf.PrepareFolder()
 	parsedFiles := parseFiles(mf.Files)
 	builder.NewBuilder(mf.Package).BuildFiles(parsedFiles)
 }

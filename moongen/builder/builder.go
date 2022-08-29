@@ -80,6 +80,7 @@ func (br *BuilderRef) create() {
 }
 
 func (br *BuilderRef) reset() {
+
 	if _, err := os.Stat(br.NewPath); errors.Is(err, os.ErrNotExist) {
 		br.create()
 	}
