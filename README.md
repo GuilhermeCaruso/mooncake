@@ -8,7 +8,7 @@
 
 </div>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Go Report Card](https://goreportcard.com/badge/github.com/GuilhermeCaruso/mooncake)](https://goreportcard.com/report/github.com/GuilhermeCaruso/mooncake) ![GitHub](https://img.shields.io/badge/golang%20->=1.18-blue.svg) [![GoDoc](https://godoc.org/github.com/GuilhermeCaruso/mooncake?status.svg)](https://godoc.org/github.com/GuilhermeCaruso/mooncake) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/GuilhermeCaruso/mooncake)](https://goreportcard.com/report/github.com/GuilhermeCaruso/mooncake) [![Build Status](https://app.travis-ci.com/GuilhermeCaruso/mooncake.svg?branch=main)](https://app.travis-ci.com/GuilhermeCaruso/mooncake) [![codecov](https://codecov.io/gh/GuilhermeCaruso/mooncake/branch/main/graph/badge.svg?token=MctCNBxckn)](https://codecov.io/gh/GuilhermeCaruso/mooncake) ![GitHub](https://img.shields.io/badge/golang%20->=1.18-blue.svg) [![GoDoc](https://godoc.org/github.com/GuilhermeCaruso/mooncake?status.svg)](https://godoc.org/github.com/GuilhermeCaruso/mooncake) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
 **Table of Contents**
 
