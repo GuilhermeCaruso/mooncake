@@ -1,9 +1,9 @@
-package structs
+package example
 
 type GenericExample[T, Z any] struct {
-	value Z
+	Value Z
 }
 
 func (ge GenericExample[T, Z]) Other(param T) (T, Z) {
-	return param, ge.value
+	return param, ge.Value
 }

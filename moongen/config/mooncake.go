@@ -18,10 +18,12 @@ type Mock struct {
 	Path    string   `yaml:"path"`
 	Files   []string `yaml:"files"`
 	Output  string   `yaml:"output"`
+	Prefix  string   `yaml:"prefix"`
 }
 
 type Config struct {
 	Package string
+	Prefix  string
 	Files   []ConfigFile
 }
 
@@ -44,15 +46,20 @@ func NewConfig(p string) Config {
 
 	config := new(Config)
 	config.Package = mf.Mocks.Package
+	config.Prefix = "generated"
+	if mf.Mocks.Prefix != "" {
+		config.Prefix = mf.Mocks.Prefix
+	}
 	config.setFiles(mf.Mocks.Path, mf.Mocks.Output, mf.Mocks.Files)
 	return *config
 }
 
 func (c *Config) setFiles(path string, newPath string, files []string) {
+
 	for _, f := range files {
 		c.Files = append(c.Files, ConfigFile{
 			Original: filepath.Join(path, f),
-			New:      filepath.Join(newPath, fmt.Sprintf("generated_%s", f)),
+			New:      filepath.Join(newPath, fmt.Sprintf("%s_%s", c.Prefix, f)),
 		})
 	}
 }

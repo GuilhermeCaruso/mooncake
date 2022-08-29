@@ -3,7 +3,7 @@
 // Date: 2022-08-28 17:30:16
 // Source: examples/interfaces/example.go
 // ############################
-package mocks
+package example
 
 import (
 	"reflect"

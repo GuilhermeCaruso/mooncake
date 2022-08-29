@@ -8,12 +8,11 @@ import (
 	"go/token"
 	"log"
 
-	"github.com/GuilhermeCaruso/mooncake/generator/builder"
-	"github.com/GuilhermeCaruso/mooncake/generator/models"
+	"github.com/GuilhermeCaruso/mooncake/moongen/builder"
+	"github.com/GuilhermeCaruso/mooncake/moongen/models"
 )
 
-type Parser struct {
-}
+type Parser struct{}
 
 func NewParser() *Parser {
 	return &Parser{}

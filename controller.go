@@ -49,9 +49,12 @@ func (ag *AgentController) SetReturn(args ...interface{}) *AgentController {
 			len(ag.returnValues), len(args)).Error())
 	}
 	for idx, arg := range args {
+
 		if reflect.TypeOf(arg) != ag.returnValues[idx].DType {
-			log.Fatalln(ErrInvalidTypeOfReturn(ag.key,
-				ag.returnValues[idx].DType, reflect.TypeOf(arg)).Error())
+			if ag.returnValues[idx].DType != reflect.TypeOf((*error)(nil)).Elem() {
+				log.Fatalln(ErrInvalidTypeOfReturn(ag.key,
+					ag.returnValues[idx].DType, reflect.TypeOf(arg)).Error())
+			}
 		}
 		ag.returnValues[idx].Value = arg
 	}

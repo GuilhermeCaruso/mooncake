@@ -1,4 +1,4 @@
-package interfaces
+package example
 
 type SimpleInterface interface {
 	Get() (string, error)

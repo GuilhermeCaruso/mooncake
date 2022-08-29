@@ -1,4 +1,4 @@
-package interfaces
+package example
 
 type GenericInterface[T, Z any] interface {
 	Other(T) (T, Z)

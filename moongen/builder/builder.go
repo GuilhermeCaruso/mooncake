@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GuilhermeCaruso/mooncake/generator/models"
-	"github.com/GuilhermeCaruso/mooncake/generator/template"
+	"github.com/GuilhermeCaruso/mooncake/moongen/models"
+	"github.com/GuilhermeCaruso/mooncake/moongen/template"
 )
 
 type Builder struct {
@@ -49,8 +49,8 @@ func (br *BuilderRef) writeMethods(template string, i models.Implementation, m m
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%m", m.Name)
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%k", pWithout)
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%p", models.GetArgListString(m.Params))
+	replacedMethod = strings.ReplaceAll(replacedMethod, "%u", models.GetArgGenericListString(m.Params))
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%r", models.GetArgListString(m.Results))
-
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%a", models.GetResultListString(m.Results))
 	br.f.WriteString(replacedMethod)
 	br.f.WriteString("\n")

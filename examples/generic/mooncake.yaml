@@ -1,6 +1,7 @@
 mocks:
   package: mocks
-  path: examples/generic/interfaces/
+  path: .
   files:
     - example.go
-  output: examples/generic/mocks
+  output: .
+  prefix: generated
