@@ -63,7 +63,7 @@ func (br *BuilderRef) writeMockBase() {
 		for _, m := range i.Methods {
 			br.writeMethods(template.METHOD, i, m)
 		}
-		br.writeMockStructure(template.CONTRUCTOR_INTERNAL_MOCK, i)
+		br.writeMockStructure(template.CONSTRUCTOR_INTERNAL_MOCK, i)
 		for _, m := range i.Methods {
 			br.writeMethods(template.INTERNAL_METHOD, i, m)
 		}

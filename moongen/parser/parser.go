@@ -58,15 +58,13 @@ func (p Parser) PrepareNested(f []builder.BuilderRef) []builder.BuilderRef {
 func (p Parser) parse(f *ast.File) models.File {
 	newFile := new(models.File)
 	for _, decl := range f.Decls {
-		d, ok := decl.(*ast.GenDecl)
-		if !ok {
-			log.Fatalf("Invalid declaration: %s", decl)
-		}
-		switch d.Tok {
-		case token.IMPORT:
-			newFile.Imports = append(newFile.Imports, p.getImports(d.Specs)...)
-		case token.TYPE:
-			newFile.Implementations = append(newFile.Implementations, p.getImplementations(d.Specs)...)
+		if d, ok := decl.(*ast.GenDecl); ok {
+			switch d.Tok {
+			case token.IMPORT:
+				newFile.Imports = append(newFile.Imports, p.getImports(d.Specs)...)
+			case token.TYPE:
+				newFile.Implementations = append(newFile.Implementations, p.getImplementations(d.Specs)...)
+			}
 		}
 	}
 	return *newFile

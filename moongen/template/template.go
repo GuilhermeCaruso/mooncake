@@ -23,9 +23,9 @@ func NewMock%s%i(agent *mooncake.MooncakeAgent) *Mock%s%k {
 	return internal
 }`
 
-const CONTRUCTOR_INTERNAL_MOCK = `
-func (immi *Mock%s%k) Prepare() *InternalMock%s%k {
-	return immi.internalController
+const CONSTRUCTOR_INTERNAL_MOCK = `
+func (m *Mock%s%k) Prepare() *InternalMock%s%k {
+	return m.internalController
 }
 
 type InternalMock%s%i struct {
