@@ -18,6 +18,7 @@
   - [Installation](#installation)
   - [Mooncake Configuration File](#mooncake-configuration-file)
   - [How to generate](#how-to-generate)
+  - [How to use](#how-to-use)
 - [License](#license)
 
 
@@ -71,12 +72,17 @@ To start using `mooncake` you need to follow the steps below
 
 ### Installation
 
+
+To add mooncake to your project run:
+
+```
+go get github.com/GuilhermeCaruso/mooncake
+```
+
 To install the mooncake generator (`moongen`) run:
 
 ```sh
-
-go install github.com/GuilhermeCaruso/mooncake/moongen
-
+go install github.com/GuilhermeCaruso/mooncake/moongen@v0.0.1
 ```
 
 ### Mooncake Configuration File
@@ -113,6 +119,40 @@ Once the configuration file is done, to generate the files, run:
 
 ```
 moongen --file <path_to_config_file>
+```
+
+### How to use
+
+After you have generated the mocks, to use the resources you can go like this:
+
+```go
+package example
+
+import (
+  "testing"
+
+  "github.com/GuilhermeCaruso/mooncake"
+)
+
+func checkValue(t *testing.T, es SimpleInterface, expectedResult string) {
+  v, err := es.Get()
+  if v != expectedResult {
+    t.Errorf("unexpected result. expected=%v got=%v", expectedResult, v)
+  }
+  if err != nil {
+    t.Errorf("unexpected error. expected=<nil> got=%v", err.Error())
+  }
+}
+
+func TestWithMock(t *testing.T) {
+  // Prepare new Mooncake Agent
+  a := mooncake.NewAgent()
+  // Start Implementation using created agent
+  ac := NewMockSimpleInterface(a)
+  // Define the implementation and responses
+  ac.Prepare().Get().SetReturn("mocked_value", nil)
+  checkValue(t, ac, "mocked_value")
+}
 ```
 
 
