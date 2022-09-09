@@ -11,6 +11,7 @@ import (
 
 	"github.com/GuilhermeCaruso/mooncake/moongen/models"
 	"github.com/GuilhermeCaruso/mooncake/moongen/template"
+	"golang.org/x/tools/imports"
 )
 
 type Builder struct {
@@ -18,19 +19,23 @@ type Builder struct {
 }
 
 type BuilderRef struct {
+	b            *bytes.Buffer
 	f            *os.File
+	c            []byte
 	OriginalPath string
 	NewPath      string
 	File         models.File
 }
 
 func (br *BuilderRef) build(pkg string) {
-	br.reset()
+	br.prepareBuffer()
 	br.writeHeader()
 	br.writePkg(pkg)
 	br.writeImports()
 	br.writeMockBase()
-	br.f.Close()
+	br.formatContent()
+	br.createFile()
+	br.writeFile()
 }
 
 func (br *BuilderRef) writeMockStructure(template string, i models.Implementation) {
@@ -39,8 +44,8 @@ func (br *BuilderRef) writeMockStructure(template string, i models.Implementatio
 	replacedStructure = strings.ReplaceAll(replacedStructure, "%i", pWith)
 	replacedStructure = strings.ReplaceAll(replacedStructure, "%k", pWithout)
 
-	br.f.WriteString(replacedStructure)
-	br.f.WriteString("\n")
+	br.b.WriteString(replacedStructure)
+	br.b.WriteString("\n")
 }
 
 func (br *BuilderRef) writeMethods(template string, i models.Implementation, m models.Method) {
@@ -52,8 +57,8 @@ func (br *BuilderRef) writeMethods(template string, i models.Implementation, m m
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%u", models.GetArgGenericListString(m.Params))
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%r", models.GetArgListString(m.Results))
 	replacedMethod = strings.ReplaceAll(replacedMethod, "%a", models.GetResultListString(m.Results))
-	br.f.WriteString(replacedMethod)
-	br.f.WriteString("\n")
+	br.b.WriteString(replacedMethod)
+	br.b.WriteString("\n")
 }
 
 func (br *BuilderRef) writeMockBase() {
@@ -71,7 +76,15 @@ func (br *BuilderRef) writeMockBase() {
 	}
 }
 
-func (br *BuilderRef) create() {
+func (br *BuilderRef) formatContent() {
+	formattedContent, err := imports.Process(br.NewPath, br.b.Bytes(), &imports.Options{})
+	if err != nil {
+		log.Fatalf("something went wrong when trying to formmat file. err=%q", err.Error())
+	}
+	br.c = formattedContent
+}
+
+func (br *BuilderRef) createFile() {
 	f, err := os.Create(br.NewPath)
 	if err != nil {
 		log.Fatalf("something went wrong when trying to write file. err=%q", err.Error())
@@ -79,21 +92,31 @@ func (br *BuilderRef) create() {
 	br.f = f
 }
 
-func (br *BuilderRef) reset() {
+func (br *BuilderRef) writeFile() {
+	br.f.Write(br.c)
+	br.f.Close()
+}
 
+func (br *BuilderRef) prepareBuffer() {
+	var f bytes.Buffer
+	br.b = &f
+}
+
+func (br *BuilderRef) reset() {
 	if _, err := os.Stat(br.NewPath); errors.Is(err, os.ErrNotExist) {
-		br.create()
+		br.createFile()
+		return
 	}
 
 	err := os.Remove(br.NewPath)
 	if err != nil {
 		log.Fatalf("something went wrong when trying to remove file. err=%q", err.Error())
 	}
-	br.create()
+	br.createFile()
 }
 
 func (br *BuilderRef) writeHeader() {
-	br.f.WriteString(fmt.Sprintf(template.FILE_HEADER,
+	br.b.WriteString(fmt.Sprintf(template.FILE_HEADER,
 		time.Now().Format("2006-01-02 15:04:05"), br.OriginalPath))
 }
 
@@ -130,11 +153,11 @@ func (br *BuilderRef) writeImports() {
 			buffer.WriteString(")")
 		}
 
-		br.f.WriteString(buffer.String())
+		br.b.WriteString(buffer.String())
 	}
 }
 func (br BuilderRef) writePkg(pkg string) {
-	br.f.WriteString(fmt.Sprintf("package %s\n", pkg))
+	br.b.WriteString(fmt.Sprintf("package %s\n", pkg))
 }
 
 func NewBuilder(pkg string) *Builder {
